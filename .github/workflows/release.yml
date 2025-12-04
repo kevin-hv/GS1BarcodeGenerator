@@ -25,18 +25,29 @@ jobs:
           BRANCH="${GITHUB_REF##*/}"
           echo "base_version=$BRANCH" >> $GITHUB_OUTPUT
 
-      - name: Count commits unique to this release branch
-        id: commitcount
+      - name: Count tags unique to this release branch
+        id: tagcount
         run: |
-          BASE_BRANCH="origin/main"
-          COUNT=$(git rev-list --count ${BASE_BRANCH}..HEAD)
+          BASE="${{ steps.version_base.outputs.base_version }}"
+
+          # List only tags matching the base version pattern vX.Y.*
+          TAGS=$(git tag --list "v${BASE}.*")
+
+          COUNT=0
+          for TAG in $TAGS; do
+            TAG_COMMIT=$(git rev-list -n1 "$TAG")
+            if git merge-base --is-ancestor "$TAG_COMMIT" HEAD; then
+              COUNT=$((COUNT + 1))
+            fi
+          done
+
           echo "count=$COUNT" >> $GITHUB_OUTPUT
 
       - name: Build full version number
         id: version
         run: |
           BASE="${{ steps.version_base.outputs.base_version }}"
-          PATCH="${{ steps.commitcount.outputs.count }}"
+          PATCH="${{ steps.tagcount.outputs.count }}"
           VERSION="${BASE}.${PATCH}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 

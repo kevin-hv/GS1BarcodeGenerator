@@ -1,0 +1,8 @@
+framework module "Gs1barcodegen" {
+	header "ref.h"
+    header "Gs1barcodegen.objc.h"
+    header "Universe.objc.h"
+    header "Gs1barcodegen.h"
+
+    export *
+}

@@ -1,0 +1,84 @@
+name: Release Build
+
+on:
+  push:
+    branches:
+      - "release/*"
+
+jobs:
+  build-and-tag:
+    runs-on: macos-latest
+
+    permissions:
+      contents: write
+      actions: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract major.minor from branch name
+        id: version_base
+        run: |
+          BRANCH="${GITHUB_REF##*/}"
+          echo "base_version=$BRANCH" >> $GITHUB_OUTPUT
+
+      - name: Count commits on this branch
+        id: commitcount
+        run: |
+          COUNT=$(git rev-list --count HEAD)
+          echo "count=$COUNT" >> $GITHUB_OUTPUT
+
+      - name: Build full version number
+        id: version
+        run: |
+          BASE="${{ steps.version_base.outputs.base_version }}"
+          PATCH="${{ steps.commitcount.outputs.count }}"
+          VERSION="${BASE}.${PATCH}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.10"
+      
+      - name: Install gomobile
+        run: |
+          cd GoBarcodeGenerator
+          go install golang.org/x/mobile/cmd/gomobile@v0.0.0-20251126181937-5c265dc024c4
+          go install golang.org/x/mobile/cmd/gobind@v0.0.0-20251126181937-5c265dc024c4
+          echo "$HOME/go/bin" >> $GITHUB_PATH
+          gomobile init
+
+      - name: Download Go dependencies
+        run: |
+          cd GoBarcodeGenerator
+          go mod download
+
+      - name: Build package from Go
+        run: make build
+
+      - name: Commit generated files
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Build artifacts for version ${{ steps.version.outputs.version }}"
+            git push
+          fi
+
+      - name: Create and push tag
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "Tag v$VERSION already exists. Skipping."
+          else
+            git tag -a "v$VERSION" -m "Release $VERSION"
+            git push origin "v$VERSION"
+          fi

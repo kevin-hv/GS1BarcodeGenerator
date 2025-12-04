@@ -33,9 +33,9 @@ jobs:
       run: make build
 
     - name: Run tests & generate JUnit results
-      run: swift test --enable-test-discovery --junit-output .test/test-results.xml
+      run: swift test --enable-test-discovery --xunit-output test-results.xml
 
     - name: Publish JUnit test results
       uses: mikepenz/action-junit-report@v5
       with:
-        report_paths: .test/test-results.xml
+        report_paths: test-results.xml

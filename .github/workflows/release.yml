@@ -25,10 +25,11 @@ jobs:
           BRANCH="${GITHUB_REF##*/}"
           echo "base_version=$BRANCH" >> $GITHUB_OUTPUT
 
-      - name: Count commits on this branch
+      - name: Count commits unique to this release branch
         id: commitcount
         run: |
-          COUNT=$(git rev-list --count HEAD)
+          BASE_BRANCH="origin/main"
+          COUNT=$(git rev-list --count ${BASE_BRANCH}..HEAD)
           echo "count=$COUNT" >> $GITHUB_OUTPUT
 
       - name: Build full version number

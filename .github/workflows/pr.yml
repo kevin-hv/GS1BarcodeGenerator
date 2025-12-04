@@ -7,7 +7,7 @@ permissions:
 
 on:
   pull_request:
-    branches: [ "main", "devtask/pr-action" ]
+    branches: [ "main" ]
 
 jobs:
   build:

@@ -29,5 +29,13 @@ jobs:
         cd GoBarcodeGenerator
         go mod download
 
-    - name: Run check
-      run: make build-test
+    - name: Build package from Go
+      run: make build
+
+    - name: Run tests & generate JUnit results
+      run: swift test --enable-test-discovery --junit-output .test/test-results.xml
+
+    - name: Publish JUnit test results
+      uses: mikeal/upload-junit-action@v1
+      with:
+        path: .test/test-results.xml

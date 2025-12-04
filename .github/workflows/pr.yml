@@ -36,15 +36,11 @@ jobs:
     - name: Build package from Go
       run: make build
 
-    - name: Run tests & generate JUnit results
+    - name: Run tests & generate XUnit results
       run: swift test --enable-test-discovery --xunit-output test-results.xml
-    
-    - name: Convert XUnit to JUnit
-      run: |
-        npm install -g xunit-to-junit
-        xunit-to-junit test-results.xml > junit-results.xml
 
-    - name: Publish JUnit test results
-      uses: mikepenz/action-junit-report@v5
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action/macos@v2
+      if: (!cancelled())
       with:
-        report_paths: junit-results.xml
+        files: test-results.xml

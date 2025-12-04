@@ -40,6 +40,6 @@ jobs:
       run: swift test --enable-test-discovery --xunit-output test-results.xml
 
     - name: Publish JUnit test results
-      uses: mikepenz/action-junit-report@v5
+      uses: EnricoMi/publish-unit-test-result-action@v2
       with:
-        report_paths: test-results.xml
+        files: test-results.xml

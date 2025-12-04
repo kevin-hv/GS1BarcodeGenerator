@@ -1,5 +1,9 @@
 name: PR
 
+permissions:
+  contents: read
+  checks: write
+
 on:
   pull_request:
     branches: [ "main", "devtask/pr-action" ]

@@ -3,6 +3,7 @@ name: PR
 permissions:
   contents: read
   checks: write
+  pull-requests: write
 
 on:
   pull_request:
@@ -37,10 +38,10 @@ jobs:
       run: make build
 
     - name: Run tests & generate XUnit results
-      run: swift test --enable-test-discovery --xunit-output test-results.xml
+      run: swift test --xunit-output test-results.xml
 
     - name: Publish Test Results
       uses: EnricoMi/publish-unit-test-result-action/macos@v2
       if: (!cancelled())
       with:
-        files: test-results.xml
+        files: test-results-swift-testing.xml

@@ -31,3 +31,9 @@ generate-apple-xcframework:
 build:
 	$(MAKE) generate-apple-xcframework
 
+test:
+	swift test
+
+build-test:
+	$(MAKE) build
+	$(MAKE) test

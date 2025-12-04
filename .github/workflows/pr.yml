@@ -36,6 +36,6 @@ jobs:
       run: swift test --enable-test-discovery --junit-output .test/test-results.xml
 
     - name: Publish JUnit test results
-      uses: mikeal/upload-junit-action@v1
+      uses: mikepenz/action-junit-report@v5
       with:
-        path: .test/test-results.xml
+        report_paths: .test/test-results.xml
